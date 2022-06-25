@@ -15,13 +15,17 @@ namespace Zuma
         public IDictionary<int, Rectangle> subImagesPosition  = new Dictionary<int, Rectangle>();
 
         public Bitmap atlas;
-
+        public string imgPath;
         public SpriteSheetReader(Bitmap img)
         {
             atlas = img;
 
         }
+        public SpriteSheetReader(string path)
+        {
+            imgPath = path;
 
+        }
         public void addSubImageToDict(int id, Rectangle rect)
         {
 

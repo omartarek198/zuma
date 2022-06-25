@@ -24,12 +24,14 @@ namespace Zuma
         PointF prevPoint = new PointF(-1, -1);
         Bitmap frog;
         Bitmap rotatedFrog;
+        LinkedList<Ball> Lballs = new LinkedList<Ball>();
         double oldAngle = 0;
         PointF ballPoint;
         float t = 0f;
         float inc = 0.001f;
-        
+
         BezierCurve path = new BezierCurve();
+
         public Form1()
         {
             InitializeComponent();
@@ -37,12 +39,12 @@ namespace Zuma
             this.MouseDown += Form1_MouseDown;
             this.Paint += Form1_Paint;
             T.Tick += T_Tick;
-            
+
         }
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-        
+
         }
 
         private void T_Tick(object sender, EventArgs e)
@@ -50,8 +52,8 @@ namespace Zuma
 
             ballPoint = path.CalcCurvePointAtTime(t);
             t += inc;
-
-            if (index < 45)
+            MoveBallsOnPath();
+            if (index < 47)
             {
                 index++;
             }
@@ -59,35 +61,41 @@ namespace Zuma
             {
                 index = 0;
             }
-            
+
             DrawDubb(CreateGraphics());
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            
+
         }
 
-      
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
             this.WindowState = FormWindowState.Maximized;
+
             off = new Bitmap(this.Width, this.Height);
 
-
-
             SetSheet1();
+
             SetSheet2();
 
- 
-              lvl1_bg = new Bitmap("assets/images/level1_bg.jpg");
+            lvl1_bg = new Bitmap("assets/images/level1_bg.jpg");
+
             lvl1_bg = new Bitmap(lvl1_bg, new Size(Width, Height));
+
             this.MouseMove += Form1_MouseMove;
+
             frog = new Bitmap(Sheet2.atlas.Clone(Sheet2.getRectangle(0), Sheet2.atlas.PixelFormat));
-            MakePath(); 
+
+            MakePath();
+            MakeBalls();
             T.Start();
-          
+
+
+
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
@@ -103,17 +111,17 @@ namespace Zuma
 
                 double slope = diffY / diffX;
 
-                double angle = Math.Atan(slope*20);
+                double angle = Math.Atan(slope * 20);
 
 
-                double x = angle +  oldAngle;
+                double x = angle + oldAngle;
 
                 if (x > 0)
                 {
                     rotatedFrog = rotateImage(frog, (float)x);
                     oldAngle = x;
                 }
-          
+
 
 
             }
@@ -121,11 +129,11 @@ namespace Zuma
 
         public void SetSheet1()
         {
-            Sheet1 = new SpriteSheetReader(new Bitmap("assets/images/gameobjects.png"));
+            Sheet1 = new SpriteSheetReader("assets/images/gameobjects.png");
             int keyId = 0;
             for (int j = 0; j < 5; j++)
             {
-                for (int i = 0; i < 51; i++)
+                for (int i = 0; i < 47; i++)
                 {
 
                     Sheet1.addSubImageToDict(keyId, new Rectangle(j * 48, i * 48, 48, 48));
@@ -138,6 +146,44 @@ namespace Zuma
 
         }
 
+
+
+        public void MakeBalls()
+        {
+            Ball ball = GetGreenBall();
+            if (Lballs.First == null)
+            {
+                ball.ballPosition.X = path.CalcCurvePointAtTime(0.0f).X;
+
+                ball.ballPosition.Y = path.CalcCurvePointAtTime(0.0f).Y;
+                Lballs.AddFirst(ball);
+
+            }
+            else
+            {
+                ball.ballPosition.X = path.CalcCurvePointAtTime(0.0f).X;
+
+                ball.ballPosition.Y = path.CalcCurvePointAtTime(0.0f).Y;
+                Lballs.AddLast(ball);
+            }
+        }
+
+        public Ball GetBlueBall()
+        {
+            Ball ball = new Ball(0, 0, 48, 48, 0, 47, Ball.Color.Blue);
+            return ball;
+        }
+        public Ball GetGreenBall()
+        {
+            Ball ball = new Ball(0, 0, 48, 48, 48, 48+47, Ball.Color.Blue);
+            return ball;
+
+        }
+        public Ball GetYellowBall()
+        {
+            Ball ball = new Ball(0, 0, 48, 48, 48+47+1, 48+48+47, Ball.Color.Blue);
+            return ball;
+        }
         private Bitmap rotateImage(Bitmap b, float angle)
         {
             Bitmap returnBitmap = new Bitmap(b.Width, b.Height);
@@ -212,22 +258,60 @@ namespace Zuma
 
 
         }
+
+        public void MoveBallsOnPath()
+        {
+
+            for (LinkedListNode<Ball> ptrav = Lballs.First; ptrav != null; ptrav = ptrav.Next)
+            {
+
+                PointF point = path.CalcCurvePointAtTime(ptrav.Value.currT);
+                ptrav.Value.ballPosition.X = point.X;
+                ptrav.Value.ballPosition.Y = point.Y;
+                ptrav.Value.currT += inc;
+               
+
+            }
+
+            if (Lballs.First !=null)
+            {
+                if (Math.Abs(Lballs.Last.Value.currT - Lballs.Last.Previous.Value.currT) > 0.005f)
+                {
+                    MakeBalls();
+                }
+            }
+
+          
+        }
         public void DrawScene(Graphics g)
         {
 
             g.Clear(Color.White);
             g.DrawImage(lvl1_bg, 1, 1);
-           // path.DrawCurve(g);
-
+            // path.DrawCurve(g);
+            Bitmap atlas = new Bitmap(Sheet1.imgPath);
                     Rectangle pn = Sheet1.getRectangle(index);
 
  
-            g.DrawImage(Sheet1.atlas, new RectangleF(ballPoint.X-(pn.Width/2)
+            g.DrawImage(atlas, new RectangleF(ballPoint.X-(pn.Width/2)
                 
                 ,ballPoint.Y - (pn.Height / 2)
                 , pn.Width, pn.Height), pn, GraphicsUnit.Pixel);
             
 
+            for (LinkedListNode<Ball> ptrav = Lballs.First; ptrav != null;ptrav = ptrav.Next)
+            {
+                Rectangle rect = Sheet1.getRectangle(ptrav.Value.currIndex);
+
+
+                g.DrawImage(atlas, new RectangleF(ptrav.Value.ballPosition.X - (rect.Width / 2)
+
+               , ptrav.Value.ballPosition.Y - (rect.Height / 2)
+               , rect.Width, rect.Height), rect, GraphicsUnit.Pixel);
+
+
+                ptrav.Value.currIndex++;
+            }
             if (rotatedFrog != null)
                 g.DrawImage(rotatedFrog, 550, 400);
 
