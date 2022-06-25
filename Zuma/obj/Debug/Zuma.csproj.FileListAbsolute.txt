@@ -1,0 +1,9 @@
+C:\Users\GAMING\source\repos\Zuma\Zuma\bin\Debug\Zuma.exe.config
+C:\Users\GAMING\source\repos\Zuma\Zuma\bin\Debug\Zuma.exe
+C:\Users\GAMING\source\repos\Zuma\Zuma\bin\Debug\Zuma.pdb
+C:\Users\GAMING\source\repos\Zuma\Zuma\obj\Debug\Zuma.csproj.AssemblyReference.cache
+C:\Users\GAMING\source\repos\Zuma\Zuma\obj\Debug\Zuma.Properties.Resources.resources
+C:\Users\GAMING\source\repos\Zuma\Zuma\obj\Debug\Zuma.csproj.GenerateResource.cache
+C:\Users\GAMING\source\repos\Zuma\Zuma\obj\Debug\Zuma.csproj.CoreCompileInputs.cache
+C:\Users\GAMING\source\repos\Zuma\Zuma\obj\Debug\Zuma.exe
+C:\Users\GAMING\source\repos\Zuma\Zuma\obj\Debug\Zuma.pdb
