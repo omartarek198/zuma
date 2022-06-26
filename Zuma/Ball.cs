@@ -30,11 +30,20 @@ namespace Zuma
             currIndex = lowImgIndex;
             highImgIndex = high;
             lowImgIndex = low;
+
+            currIndex = lowImgIndex;
             ballPosition = new Rectangle(x, y, w, h);
             color = c;
         }
 
+        public void ChangeImgFrame()
+        {
+            if (currIndex < highImgIndex)
+                currIndex++;
+            else
+                currIndex = lowImgIndex;
 
+        }
 
 
     }

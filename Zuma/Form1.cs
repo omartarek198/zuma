@@ -29,7 +29,7 @@ namespace Zuma
         PointF ballPoint;
         float t = 0f;
         float inc = 0.001f;
-
+        int streamSize = 46;
         BezierCurve path = new BezierCurve();
 
         public Form1()
@@ -92,6 +92,7 @@ namespace Zuma
 
             MakePath();
             MakeBalls();
+     
             T.Start();
 
 
@@ -150,7 +151,7 @@ namespace Zuma
 
         public void MakeBalls()
         {
-            Ball ball = GetGreenBall();
+            Ball ball = GetYellowBall();
             if (Lballs.First == null)
             {
                 ball.ballPosition.X = path.CalcCurvePointAtTime(0.0f).X;
@@ -161,27 +162,30 @@ namespace Zuma
             }
             else
             {
-                ball.ballPosition.X = path.CalcCurvePointAtTime(0.0f).X;
+                
+                ball.currT = 0.0f;
 
-                ball.ballPosition.Y = path.CalcCurvePointAtTime(0.0f).Y;
+                ball.ballPosition.X = path.CalcCurvePointAtTime(-0.0f).X;
+
+                ball.ballPosition.Y = path.CalcCurvePointAtTime(-0.0f).Y;
                 Lballs.AddLast(ball);
             }
         }
 
         public Ball GetBlueBall()
         {
-            Ball ball = new Ball(0, 0, 48, 48, 0, 47, Ball.Color.Blue);
+            Ball ball = new Ball(0, 0, 48, 48, 0, streamSize, Ball.Color.Blue);
             return ball;
         }
         public Ball GetGreenBall()
         {
-            Ball ball = new Ball(0, 0, 48, 48, 48, 48+47, Ball.Color.Blue);
+            Ball ball = new Ball(0, 0, 48, 48, streamSize+1, 1+(streamSize*2), Ball.Color.Blue);
             return ball;
 
         }
         public Ball GetYellowBall()
         {
-            Ball ball = new Ball(0, 0, 48, 48, 48+47+1, 48+48+47, Ball.Color.Blue);
+            Ball ball = new Ball(0, 0, 48, 48, 2+ (streamSize*2), 2+ (streamSize*3), Ball.Color.Blue);
             return ball;
         }
         private Bitmap rotateImage(Bitmap b, float angle)
@@ -273,12 +277,9 @@ namespace Zuma
 
             }
 
-            if (Lballs.First !=null)
+           if (Lballs.Last.Value.currT > 0.007f)
             {
-                if (Math.Abs(Lballs.Last.Value.currT - Lballs.Last.Previous.Value.currT) > 0.005f)
-                {
-                    MakeBalls();
-                }
+                MakeBalls();
             }
 
           
@@ -290,13 +291,13 @@ namespace Zuma
             g.DrawImage(lvl1_bg, 1, 1);
             // path.DrawCurve(g);
             Bitmap atlas = new Bitmap(Sheet1.imgPath);
-                    Rectangle pn = Sheet1.getRectangle(index);
+            //        Rectangle pn = Sheet1.getRectangle(index);
 
  
-            g.DrawImage(atlas, new RectangleF(ballPoint.X-(pn.Width/2)
+            //g.DrawImage(atlas, new RectangleF(ballPoint.X-(pn.Width/2)
                 
-                ,ballPoint.Y - (pn.Height / 2)
-                , pn.Width, pn.Height), pn, GraphicsUnit.Pixel);
+            //    ,ballPoint.Y - (pn.Height / 2)
+            //    , pn.Width, pn.Height), pn, GraphicsUnit.Pixel);
             
 
             for (LinkedListNode<Ball> ptrav = Lballs.First; ptrav != null;ptrav = ptrav.Next)
@@ -310,7 +311,7 @@ namespace Zuma
                , rect.Width, rect.Height), rect, GraphicsUnit.Pixel);
 
 
-                ptrav.Value.currIndex++;
+                ptrav.Value.ChangeImgFrame();
             }
             if (rotatedFrog != null)
                 g.DrawImage(rotatedFrog, 550, 400);
@@ -320,7 +321,7 @@ namespace Zuma
             //}
 
 
-
+            atlas.Dispose();
 
 
         }
