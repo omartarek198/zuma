@@ -24,6 +24,7 @@ namespace Zuma
         public int currIndex = 0;
         public float currT = 0.0f;
         public Color color;
+        public DDA straightPath = null;
 
         public Ball(int x, int y, int w, int h, int low, int high, Color c)
         {
@@ -35,7 +36,10 @@ namespace Zuma
             ballPosition = new Rectangle(x, y, w, h);
             color = c;
         }
-
+        public Ball()
+        {
+            // default constructor
+        }
         public void ChangeImgFrame()
         {
             if (currIndex < highImgIndex)
@@ -43,6 +47,26 @@ namespace Zuma
             else
                 currIndex = lowImgIndex;
 
+        }
+
+        public bool IsCollid(Ball obj)
+        {
+
+            if (this.ballPosition.X < obj.ballPosition.X)
+            {
+                if (this.ballPosition.X + this.ballPosition.Width > obj.ballPosition.X )
+                {
+
+                    if (this.ballPosition.Y < obj.ballPosition.Y)
+                    {
+                        if (this.ballPosition.Y + this.ballPosition.Width > obj.ballPosition.Y)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
 
