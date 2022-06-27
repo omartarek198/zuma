@@ -25,7 +25,7 @@ namespace Zuma
         public float currT = 0.0f;
         public Color color;
         public DDA straightPath = null;
-
+        public   bool shotMove = false;
         public Ball(int x, int y, int w, int h, int low, int high, Color c)
         {
             currIndex = lowImgIndex;

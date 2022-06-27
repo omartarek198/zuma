@@ -19,6 +19,7 @@ namespace Zuma
         SpriteSheetReader Sheet1;
         SpriteSheetReader Sheet2;
         Timer T = new Timer();
+        Stack<Ball.Color> LColorsToGen = new Stack<Ball.Color>();
         int index = 0;
         Bitmap lvl1_bg;
         Bitmap off;
@@ -39,6 +40,8 @@ namespace Zuma
         LinkedListNode<Ball> Target;
         Ball ShotBall;
         int ct = 0;
+        int portalIndex = 0;
+        bool shotMove = false;
         public Form1()
         {
             InitializeComponent();
@@ -77,15 +80,54 @@ namespace Zuma
             }
             MoveShotballs();
             DetectBallsCollision();
+
+            OpenPortal();
             DrawDubb(CreateGraphics());
+
+            DetectGameEnd();
         }
 
+
+        public void DetectGameEnd()
+        {
+            if (Lballs == null)
+                EndGame();
+            if (Lballs.First.Value.currT >= 0.9999f)
+            {
+                EndGame();
+            }
+        }
+        public void EndGame()
+        {
+            Dispose();
+        }
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
 
         }
 
-
+        public void GenerateColors(int max)
+        {
+            for (int i=0;i<200;i++)
+            {
+                int rand = R.Next(max);
+                switch(rand)
+                {
+                    case 0:
+                        LColorsToGen.Push(Ball.Color.Blue);
+                        break;
+                    case 1:
+                        LColorsToGen.Push(Ball.Color.Red);
+                        break;
+                    case 2:
+                        LColorsToGen.Push(Ball.Color.Green);
+                        break;
+                    case 3:
+                        LColorsToGen.Push(Ball.Color.Yellow);
+                        break;
+                }
+            }
+        }
         private void Form1_Load(object sender, EventArgs e)
         {
 
@@ -107,7 +149,9 @@ namespace Zuma
 
             MakePath();
             // MakeBall();
+            GenerateColors(4);
             GenerateLevelBalls();
+            MessageBox.Show("Width" + this.Width + " Height" + this.Height);
             T.Start();
 
 
@@ -164,6 +208,8 @@ namespace Zuma
             }
 
         }
+
+        
 
         public void DetectMatchingBall(LinkedListNode<Ball> InsertedBall)
         {
@@ -252,19 +298,23 @@ namespace Zuma
         }
         public Ball GetColoredBall()
         {
-            int rand = R.Next(3);
-            Ball ball = new Ball(); ;
-            switch (rand)
+            
+            Ball ball = new Ball(); 
+            switch (LColorsToGen.Pop())
             {
-                case 0:
+                case Ball.Color.Blue:
                     ball = GetBlueBall();
                     break;
-                case 1:
+                case Ball.Color.Green:
                     ball = GetGreenBall();
                     break;
-                case 2:
+                case Ball.Color.Yellow:
                     ball = GetYellowBall();
                     break;
+                case Ball.Color.Red:
+                    ball = GetRedBall();
+                    break;
+
 
             }
             return ball;
@@ -310,6 +360,11 @@ namespace Zuma
         public Ball GetYellowBall()
         {
             Ball ball = new Ball(0, 0, 48, 48, 2+ (streamSize*2), 2+ (streamSize*3), Ball.Color.Yellow);
+            return ball;
+        }
+        public Ball GetRedBall()
+        {
+            Ball ball = new Ball(0, 0, 48, 48, 3 + (streamSize * 3), 3 + (streamSize * 4), Ball.Color.Red);
             return ball;
         }
         private Bitmap rotateImage(Bitmap b, float angle)
@@ -487,6 +542,29 @@ namespace Zuma
 
            
         }
+        public void OpenPortal()
+        {
+            float  t_Portal =  0.9f ;
+            float t_Curr = Lballs.First.Value.currT;
+            //double distance = Math.Sqrt(Math.Pow(pPortal.Y - pCurr.Y, 2) + Math.Pow(pPortal.X - pCurr.X, 2));
+
+            float distance = Math.Abs(t_Portal - t_Curr);
+            if (distance <0.1)
+            {
+                portalIndex = 1;
+            }
+            if (distance < 0.05)
+            {
+                portalIndex = 3;
+            }
+            if (distance < 0.025)
+            {
+                portalIndex =   5;
+            }
+            
+
+
+        }
         public void RotateZumaWithMouse(int x, int y)
         {
             if (rotatedFrog != null)
@@ -522,18 +600,19 @@ namespace Zuma
             Bitmap atlas = new Bitmap(Sheet1.imgPath);
             //        Rectangle pn = Sheet1.getRectangle(index);
 
- 
+
+            Rectangle rect;
             //g.DrawImage(atlas, new RectangleF(ballPoint.X-(pn.Width/2)
-                
+
             //    ,ballPoint.Y - (pn.Height / 2)
             //    , pn.Width, pn.Height), pn, GraphicsUnit.Pixel);
-            
+
 
             for (LinkedListNode<Ball> ptrav = Lballs.First; ptrav != null;ptrav = ptrav.Next)
             {
 
               
-                Rectangle rect = Sheet1.getRectangle(ptrav.Value.currIndex);
+                  rect = Sheet1.getRectangle(ptrav.Value.currIndex);
 
 
                 if (Target != null)
@@ -579,7 +658,7 @@ namespace Zuma
             {
 
 
-                Rectangle rect = Sheet1.getRectangle(LshotBalls[i].currIndex);
+                  rect = Sheet1.getRectangle(LshotBalls[i].currIndex);
 
 
                 g.DrawImage(atlas, new RectangleF(LshotBalls[i].ballPosition.X - (rect.Width / 2)
@@ -590,6 +669,33 @@ namespace Zuma
 
                 LshotBalls[i].ChangeImgFrame();
             }
+
+
+            Ball.Color next = LColorsToGen.Peek();
+            int ind = 0;
+            switch (next)
+            {
+                case Ball.Color.Yellow:
+                    ind = 2 + (streamSize * 2);
+                    break;
+                case Ball.Color.Green:
+                    ind = streamSize + 1;
+                    break;
+                case Ball.Color.Blue:
+                    ind = 0;
+                    break;
+                case Ball.Color.Red:
+                    ind = 3 + (streamSize * 3);
+                    break;
+            }
+
+
+            rect = Sheet1.getRectangle(ind);
+
+            g.DrawImage(atlas, new Rectangle(100,100,48,48), rect, GraphicsUnit.Pixel);
+
+            g.DrawImage(atlas, new Rectangle(375, 300, 160, 130), new Rectangle(620,0,160,120), GraphicsUnit.Pixel);
+            g.DrawImage(atlas, new Rectangle(415, 335,80,80), new Rectangle(660, 160 + (80 * portalIndex), 80, 80), GraphicsUnit.Pixel);
 
             atlas.Dispose();
 
