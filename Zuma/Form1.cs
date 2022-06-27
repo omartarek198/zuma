@@ -164,14 +164,55 @@ namespace Zuma
             }
 
         }
+
+        public void DetectMatchingBall(LinkedListNode<Ball> InsertedBall)
+        {
+
+            LinkedListNode<Ball> ptEMP;
+            bool del = false;
+            List<LinkedListNode<Ball>> Ldeletednodes = new List<LinkedListNode<Ball>>();
+            for (LinkedListNode<Ball> pFWD = InsertedBall.Next; pFWD !=null; pFWD = pFWD.Next)
+            {
+                if (pFWD.Value.color == InsertedBall.Value.color)
+                {
+
+                    Ldeletednodes.Add(pFWD);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            for (LinkedListNode<Ball> pBCK = InsertedBall.Previous; pBCK != null; pBCK = pBCK.Previous)
+            {
+                if (pBCK.Value.color == InsertedBall.Value.color)
+                {
+
+                    Ldeletednodes.Add(pBCK);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (Ldeletednodes.Count>0)
+                Lballs.Remove(InsertedBall);
+            for (int i=0;i<Ldeletednodes.Count;i++)
+            {
+                Lballs.Remove(Ldeletednodes[i]);
+            }
+        }
         public void CollisionHandler(LinkedListNode<Ball> ball, Ball shotBall)
         {
             LinkedListNode<Ball> ptrav = ball;
-            shotBall.currT = ptrav.Value.currT+0.007f;
-         
-           
+            shotBall.currT = ptrav.Value.currT+ 0.007f;
+
+
             Lballs.AddBefore(ball, shotBall);
+            LinkedListNode<Ball> temp = new     LinkedListNode<Ball> (shotBall); 
             LshotBalls.Remove(shotBall);
+            DetectMatchingBall(ball.Previous);
             FixBallsPostion();
         }
         public void DetectBallsCollision()
@@ -262,13 +303,13 @@ namespace Zuma
         }
         public Ball GetGreenBall()
         {
-            Ball ball = new Ball(0, 0, 48, 48, streamSize+1, 1+(streamSize*2), Ball.Color.Blue);
+            Ball ball = new Ball(0, 0, 48, 48, streamSize+1, 1+(streamSize*2), Ball.Color.Green);
             return ball;
 
         }
         public Ball GetYellowBall()
         {
-            Ball ball = new Ball(0, 0, 48, 48, 2+ (streamSize*2), 2+ (streamSize*3), Ball.Color.Blue);
+            Ball ball = new Ball(0, 0, 48, 48, 2+ (streamSize*2), 2+ (streamSize*3), Ball.Color.Yellow);
             return ball;
         }
         private Bitmap rotateImage(Bitmap b, float angle)
