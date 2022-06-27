@@ -59,13 +59,30 @@ namespace Zuma
 
                     if (this.ballPosition.Y < obj.ballPosition.Y)
                     {
-                        if (this.ballPosition.Y + this.ballPosition.Width > obj.ballPosition.Y)
+                        if (this.ballPosition.Y + this.ballPosition.Height > obj.ballPosition.Y)
                         {
                             return true;
                         }
                     }
                 }
             }
+
+
+            if (this.ballPosition.X+ this.ballPosition.Width > obj.ballPosition.X)
+            {
+                if (this.ballPosition.X + this.ballPosition.Width < obj.ballPosition.X+ obj.ballPosition.Width)
+                {
+
+                    if (this.ballPosition.Y < obj.ballPosition.Y)
+                    {
+                        if (this.ballPosition.Y + this.ballPosition.Height > obj.ballPosition.Y)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
             return false;
         }
 

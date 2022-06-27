@@ -166,12 +166,13 @@ namespace Zuma
         }
         public void CollisionHandler(LinkedListNode<Ball> ball, Ball shotBall)
         {
-            LinkedListNode<Ball> ptrav = ball.Previous;
-            shotBall.currT = ptrav.Value.currT-0.007f;
+            LinkedListNode<Ball> ptrav = ball;
+            shotBall.currT = ptrav.Value.currT+0.007f;
          
            
             Lballs.AddBefore(ball, shotBall);
             LshotBalls.Remove(shotBall);
+            FixBallsPostion();
         }
         public void DetectBallsCollision()
         {
@@ -185,7 +186,14 @@ namespace Zuma
                         if (LshotBalls[i].IsCollid(ptrav.Value))
                         {
                             LshotBalls[i].straightPath.Speed = 5;
-                            ShotBall = LshotBalls[i];                                                 
+
+                            PointF currP   = new PointF(LshotBalls[i].straightPath.currX, LshotBalls[i].straightPath.currY);
+                            PointF nextP = path.CalcCurvePointAtTime(ptrav.Value.currT + 0.007f);
+                            LshotBalls[i].straightPath = new DDA();
+                            LshotBalls[i].straightPath.SetVals(currP.X, currP.Y, nextP.X, nextP.Y);
+                            ShotBall = LshotBalls[i];
+
+
                             Target = ptrav;
 
                             break; 
@@ -337,7 +345,19 @@ namespace Zuma
 
 
         }
+        void FixBallsPostion()
+        {
 
+            LinkedListNode<Ball> ptrav = Lballs.Last;
+            float LastT = ptrav.Value.currT;
+            ptrav = ptrav.Previous;
+            while (ptrav!=null)
+            {
+                ptrav.Value.currT = LastT + 0.007f;
+                LastT = ptrav.Value.currT;
+                ptrav = ptrav.Previous;
+            }
+        }
         public void MoveBallsOnPath()
         {
             int flag = 0;
@@ -350,21 +370,30 @@ namespace Zuma
                 ptrav.Value.currT += inc;
                 
 
+
+
+
+            }
+
+
+            for (LinkedListNode<Ball> ptrav = Target; ptrav != null; ptrav = ptrav.Previous)
+            {
+
                 if (flag == 0 && Target != null && ptrav != Target)
                 {
-                    ptrav.Value.currT += 0.0035f;
+                    ptrav.Value.currT += 0.0028f;
 
                 }
-                if (ptrav == Target)
+                if (ptrav.Previous == null)
                 {
                     if (ct == 2)
                     {
                         flag = 1;
-
+                        CollisionHandler(Target, ShotBall);
                         Target = null;
-                        CollisionHandler(ptrav, ShotBall);
-                        ct = 0;
                         
+                        ct = 0;
+
 
 
                     }
@@ -372,11 +401,8 @@ namespace Zuma
                     {
                         ct++;
                     }
-                  
+
                 }
-
-
-
             }
 
            if (Lballs.Last.Value.currT > 0.007f)
@@ -464,8 +490,22 @@ namespace Zuma
 
             for (LinkedListNode<Ball> ptrav = Lballs.First; ptrav != null;ptrav = ptrav.Next)
             {
+
+              
                 Rectangle rect = Sheet1.getRectangle(ptrav.Value.currIndex);
 
+
+                if (Target != null)
+                {
+                    if (ptrav == Target)
+                    {
+                        g.DrawRectangle(Pens.Red, new Rectangle((int)ptrav.Value.ballPosition.X - (rect.Width / 2),
+                            (int)ptrav.Value.ballPosition.Y - (rect.Height / 2),50,50
+
+                            ));
+                           
+                    }
+                }
 
                 g.DrawImage(atlas, new RectangleF(ptrav.Value.ballPosition.X - (rect.Width / 2)
 
